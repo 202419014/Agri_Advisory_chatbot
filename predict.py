@@ -3,6 +3,8 @@ import torch.nn as nn
 from torchvision import models, transforms
 from PIL import Image
 from transformers import CLIPProcessor, CLIPModel
+import os
+import urllib.request
 
 device = torch.device("cpu")
 
@@ -59,6 +61,16 @@ def is_maize(image):
 
     print(f"Maize score: {maize_score:.2f} | Non-maize score: {non_maize_score:.2f}")
     return maize_score > non_maize_score and maize_score > 0.35
+    
+def download_file(url, path):
+    if not os.path.exists(path):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        print(f"Downloading {path}...")
+        urllib.request.urlretrieve(url, path)
+
+maize_url = https://drive.google.com/uc?id = 1BXdS0khtYvGhAVLi9aqfI9KOILYRhor
+disease_url = https://drive.google.com/uc?id = 1SSwyapIc8wYIVn4UiVaaJ7_zJc3g0JXf
+pest_url = https://drive.google.com/uc?id = 1QipEeKTWcVG9lol7dV32WZMFHRowDl_i
 
 def load_models():
     disease_model = models.resnet18(weights=None)
