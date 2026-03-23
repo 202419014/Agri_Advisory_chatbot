@@ -122,33 +122,43 @@ label_display = {
 # ── IMAGE UPLOAD ──────────────────────────────────────
 with right_col:
     st.subheader(upload_label)
-    uploaded_file = st.file_uploader("Choose a maize leaf image", type=["jpg", "jpeg", "png"])
-if uploaded_file is not None:
-    image = Image.open(uploaded_file).convert("RGB")
-    st.image(image, caption="Uploaded Image", use_column_width=True)
+    uploaded_file = st.file_uploader(
+        "Choose a maize leaf image",
+        type=["jpg", "jpeg", "png"]
+    )
 
-    with st.spinner("Analyzing image..."):
-        result, confidence, category = predict_image(
-           image, maize_model, disease_model, pest_model)
+    if uploaded_file is not None:
+        image = Image.open(uploaded_file).convert("RGB")
+        st.image(image, caption="Uploaded Image", use_container_width=True)
 
-    st.subheader(result_label)
+        with st.spinner("Analyzing image..."):
+            result, confidence, category = predict_image(
+                image, maize_model, disease_model, pest_model
+            )
 
-    if result == "not_maize":
-       st.error("This does not appear to be a maize plant. Please upload a maize leaf image.")
-    else:
-     display_name = label_display.get(result, result)
-       if result == "healthy":
-            st.success(f"Result: {display_name} ({category.title()}) — Confidence: {confidence}%")
-       else:
-            st.warning(f"Result: {display_name} ({category.title()}) — Confidence: {confidence}%")
+        st.subheader(result_label)
 
-  if language == "Hindi":
-           auto_query = f"मक्का में {display_name} क्या है और इसे कैसे नियंत्रित करे  #      else:
-            auto_query = f"How to control {display_name} in maize?"
+        if result == "not_maize":
+            st.error("This does not appear to be a maize plant. Please upload a maize leaf image.")
+        else:
+            display_name = label_display.get(result, result)
 
-      st.info(f"Searching advice for: {auto_query}")
-        st.session_state["query"] = auto_query
-        st.session_state["recognized_text"] = auto_query
+            if result == "healthy":
+                st.success(f"Result: {display_name} ({category.title()}) — Confidence: {confidence}%")
+            else:
+                st.warning(f"Result: {display_name} ({category.title()}) — Confidence: {confidence}%")
+
+            if language == "Hindi":
+                auto_query = f"मक्का में {display_name} क्या है और इसे कैसे नियंत्रित करें?"
+            else:
+                auto_query = f"How to control {display_name} in maize?"
+
+            st.info(f"Searching advice for: {auto_query}")
+            st.session_state["query"] = auto_query
+            st.session_state["recognized_text"] = auto_query
+
+    
+       
 
 # ── COMMON QUESTIONS ──────────────────────────────────
 if language == "Hindi":
