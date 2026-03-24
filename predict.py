@@ -1,17 +1,15 @@
 import os
-import gdown
 import torch
 import torch.nn as nn
 from torchvision import models, transforms
 from PIL import Image
+from huggingface_hub import hf_hub_download
 
 # -------------------------
-# GOOGLE DRIVE DIRECT LINKS
-# Replace with your real file IDs
+# HUGGING FACE REPO
+# Replace with your actual username and repo name after uploading
 # -------------------------
-maize_url = "https://drive.google.com/uc?export=download&id=1BXdS0khtYvGhAVLi9aqfI9KOILYRhorj"
-disease_url = "https://drive.google.com/uc?export=download&id=1SSwyapIc8wYIVn4UiVaaJ7_zJc3g0JXf"
-pest_url = "https://drive.google.com/uc?export=download&id=1QipEeKTWcVG9lol7dV32WZMFHRowDl_i"
+REPO_ID = "jhaanasreya/maize-advisory-models"  # ← CHANGE THIS
 
 # -------------------------
 # CLASS LABELS
@@ -33,49 +31,51 @@ transform = transforms.Compose([
 ])
 
 # -------------------------
-# DOWNLOAD FUNCTION
-# -------------------------
-def download_file(url, path):
-    if not os.path.exists(path):
-        folder = os.path.dirname(path)
-        if folder:
-            os.makedirs(folder, exist_ok=True)
-        print(f"Downloading {path}...")
-        gdown.download(url, path, quiet=False, fuzzy=True)
-
-print("Checking file size:", os.path.getsize("models/maize_check_model.pth"))    
-# -------------------------
-# LOAD MODELS
+# LOAD MODELS (cached by Streamlit)
 # -------------------------
 def load_models():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # Download model files if missing
-    download_file(maize_url, "models/maize_check_model.pth")
-    download_file(disease_url, "models/maize_disease_model.pth")
-    download_file(pest_url, "models/maize_pest_model.pth")
+    print("Downloading models from Hugging Face...")
+
+    # Download all 3 model files from HuggingFace
+    maize_path = hf_hub_download(
+        repo_id=REPO_ID,
+        filename="maize_check_model.pth"   # must match exact filename you uploaded
+    )
+    disease_path = hf_hub_download(
+        repo_id=REPO_ID,
+        filename="maize_disease_model.pth"
+    )
+    pest_path = hf_hub_download(
+        repo_id=REPO_ID,
+        filename="maize_pest_model.pth"
+    )
+
+    print("All models downloaded. Loading...")
 
     # Maize / not_maize model
     maize_model = models.resnet18(weights=None)
     maize_model.fc = nn.Linear(maize_model.fc.in_features, 2)
-    maize_model.load_state_dict(torch.load("models/maize_check_model.pth", map_location=device))
+    maize_model.load_state_dict(torch.load(maize_path, map_location=device))
     maize_model.to(device)
     maize_model.eval()
 
     # Disease model
     disease_model = models.resnet18(weights=None)
     disease_model.fc = nn.Linear(disease_model.fc.in_features, 4)
-    disease_model.load_state_dict(torch.load("models/maize_disease_model.pth", map_location=device))
+    disease_model.load_state_dict(torch.load(disease_path, map_location=device))
     disease_model.to(device)
     disease_model.eval()
 
     # Pest model
     pest_model = models.resnet18(weights=None)
     pest_model.fc = nn.Linear(pest_model.fc.in_features, 4)
-    pest_model.load_state_dict(torch.load("models/maize_pest_model.pth", map_location=device))
+    pest_model.load_state_dict(torch.load(pest_path, map_location=device))
     pest_model.to(device)
     pest_model.eval()
 
+    print("All models loaded successfully!")
     return maize_model, disease_model, pest_model
 
 # -------------------------
