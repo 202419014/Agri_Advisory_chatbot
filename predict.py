@@ -57,21 +57,21 @@ def load_models():
     # Maize / not_maize model
     maize_model = models.resnet18(weights=None)
     maize_model.fc = nn.Linear(maize_model.fc.in_features, 2)
-    maize_model.load_state_dict(torch.load(maize_path, map_location=device))
+   maize_model.load_state_dict(torch.load(maize_path, map_location=device, weights_only=True))
     maize_model.to(device)
     maize_model.eval()
 
     # Disease model
     disease_model = models.resnet18(weights=None)
     disease_model.fc = nn.Linear(disease_model.fc.in_features, 4)
-    disease_model.load_state_dict(torch.load(disease_path, map_location=device))
+    disease_model.load_state_dict(torch.load(disease_path, map_location=device, weights_only=True))
     disease_model.to(device)
     disease_model.eval()
 
     # Pest model
     pest_model = models.resnet18(weights=None)
     pest_model.fc = nn.Linear(pest_model.fc.in_features, 4)
-    pest_model.load_state_dict(torch.load(pest_path, map_location=device))
+    pest_model.load_state_dict(torch.load(pest_path, map_location=device, weights_only=True))
     pest_model.to(device)
     pest_model.eval()
 
