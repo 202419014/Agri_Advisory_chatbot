@@ -1,173 +1,193 @@
-# 🌽 Maize Advisory Chatbot  
-AI-Powered Disease & Pest Detection System  
-Deep Learning • Computer Vision • NLP • Voice Interface  
+#  Maize Advisory Chatbot  
+> AI-Powered Disease & Pest Detection System with Multilingual Advisory - built with Streamlit, ResNet18, CLIP and Sentence Transformers
 
 ---
 
-## 1. Project Overview
+## What this bot does
 
-The Maize Advisory Chatbot is an AI-based agricultural system designed to help farmers detect maize diseases and pests and receive recommendations in real time.
+The Maize Advisory Chatbot helps farmers and agronomists identify diseases and pests in maize crops, and get actionable advice in English or Hindi. Users upload a maize leaf image or ask questions via text or voice, and the system provides instant diagnosis and treatment recommendations.
 
-The system combines:
-- Image-based disease detection  
-- NLP-based chatbot  
-- Multilingual support (English + Hindi)  
-- Voice interaction  
-
-Users can upload maize leaf images and get:
-- Disease or pest name  
-- Confidence score  
-- Advisory solution  
+**Key capabilities:**
+- Maize leaf image upload — classifies disease or pest using ResNet18 deep learning models
+- CLIP-based maize verification — rejects non-maize images before running classification
+- Multilingual support — English and Hindi queries and answers
+- Voice input — speak your question and get an answer
+- Text-to-speech output — listen to the advice in your preferred language
+- Semantic search over a curated maize advisory dataset using Sentence Transformers
+- Common quick-question buttons for the most frequent farmer queries
 
 ---
 
-## 2. Key Features
-
-### Image-Based Detection
-- Detects diseases: Blight, Grey Leaf Spot, Rust, Healthy  
-- Detects pests: Aphids, Corn Rootworm, Fall Army Worm, Stalk Borer  
-- Uses CLIP model to reject non-maize images  
-- Dual ResNet-18 models for classification  
-
-### Conversational Advisory
-- Uses SentenceTransformer (all-MiniLM-L6-v2)  
-- Cosine similarity-based Q&A matching  
-- Knowledge base from CSV dataset  
-- Auto query generation from image results  
-
-### Multilingual & Voice
-- English and Hindi interface  
-- Voice input using SpeechRecognition  
-- Text-to-speech using gTTS  
-- Translation using deep-translator  
-
----
-
-## 3. System Architecture
-
-The system has 4 layers:
-
-1. Presentation Layer → Streamlit UI (`chatbot.py`)  
-2. Inference Layer → Image prediction (`predict.py`)  
-3. Advisory Layer → NLP + dataset matching  
-4. Training Layer → Model training scripts  
-
-### Model Pipeline
-
-1. Image → CLIP → maize check  
-2. If maize → ResNet disease + pest models  
-3. Highest confidence result selected  
-4. Advisory generated and returned  
-
----
-
-## 4. Project Structure
+## Quick Start
 
 
-Agri_Advisory_chatbot/
-│── chatbot.py
-│── predict.py
-│── train_disease.py
-│── train_pest.py
-│── train_maize_check.py
-│── classify.py
-│── dataset.csv
-│── requirements.txt
-│── README.md
-│── models/
-│── dataset/
-│── images/
-
-
----
-
-## 5. Model Details
-
-### CLIP (Maize Verification)
-- Model: openai/clip-vit-base-patch32  
-- Rejects non-maize images  
-
-### Disease Model
-- ResNet-18  
-- Classes: blight, grey_leaf_spot, healthy, rust  
-- Loss: CrossEntropy  
-- Optimizer: Adam  
-
-### Pest Model
-- ResNet-18  
-- Classes: aphids, corn_rootworm, fall_army_worm, stalk_borer  
-
----
-
-## 6. Dataset
-
-### Image Data
-- maize_disease/
-- maize_pest/
-- maize_check_balanced/
-
-### CSV Knowledge Base
-- English questions  
-- English answers  
-- Hindi answers  
-
----
-
-## 7. Installation
-
-### Requirements
-- Python 3.8+
-- pip
-
-### Install Libraries
-
+### 1. Clone the Repository
 ```bash
-pip install torch torchvision
-pip install streamlit
-pip install transformers sentence-transformers
-pip install Pillow scikit-learn pandas
-pip install gTTS SpeechRecognition deep-translator
-pip install pyaudio
-8. Training
-python train_disease.py
-python train_pest.py
-python train_maize_check.py
-9. Run Application
+git clone https://github.com/YOUR_USERNAME/maize-advisory-chatbot.git
+cd maize-advisory-chatbot
+```
+
+### 2. Install Dependencies
+Requires Python 3.9+. It is strongly recommended to use a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate        # macOS/Linux
+venv\Scripts\activate           # Windows
+pip install -r requirements.txt
+```
+
+### 3. Download or Train Models
+Place the trained model files under the `models/` directory:
+```
+models/
+├── maize_disease_model.pth
+└── maize_pest_model.pth
+```
+To train the models yourself, run the training scripts (see Training section below).
+
+### 4. Prepare the Dataset
+Place `dataset.csv` in the root directory. It must contain the following columns:
+
+| Column | Description |
+|---|---|
+| `English_Language`	| Question in English (used for semantic indexing) |
+| `Answers_from_ChatGpt_in_english` |	English answer |
+| `Hindi_Language_Answers` |	Hindi answer |
+---
+
+### 5. Run the App
+```bash
 streamlit run chatbot.py
+```
+The app will open automatically at http://localhost:8501
+---
 
-Open:
-http://localhost:8501
+##Folder Structure
 
-10. Usage
-Image Input
-Upload maize image
-System detects disease/pest
-Gives recommendation
-Text Input
-Ask maize-related questions
-System returns best answer
-Voice Input
-Click mic
-Speak question
-11. Technology Stack
-Streamlit (UI)
-PyTorch (Deep Learning)
-ResNet-18 (Models)
-CLIP (Image verification)
-SentenceTransformers (NLP)
-gTTS (Speech output)
-SpeechRecognition (Input)
-Deep Translator (Language)
-12. Limitations
-Works only for maize crop
-CPU-based (slower inference)
-Dataset not included
-Large models not uploaded
+```
+project-root/
+│
+├── chatbot.py                     # Streamlit entry point — UI, voice, Q&A
+├── predict.py                     # CLIP maize check + ResNet18 inference
+│
+├── training/
+│   ├── train_disease.py           # Train disease model (CPU, with augmentation)
+│   ├── train_disease_model.py     # Alternate disease training script (GPU support)
+│   ├── train_pest.py              # Train pest classification model
+│   └── train_maize_check.py       # Train binary maize/non-maize classifier
+│
+├── models/
+│   ├── maize_disease_model.pth    # Trained disease classifier (ResNet18, 4 classes)
+│   └── maize_pest_model.pth       # Trained pest classifier (ResNet18, 4 classes)
+│
+├── dataset/
+│   ├── maize_disease/             # Image dataset for disease training
+│   ├── maize_pest/                # Image dataset for pest training
+│   └── maize_check_balanced/      # Balanced dataset for maize/non-maize check
+│
+├── images/
+│   └── maize_side.jpg             # Sidebar illustration
+│
+├── dataset.csv                    # Q&A advisory dataset (English + Hindi)
+├── requirements.txt               # Python dependencies
+└── README.md                      # This file
+```
+---
+
+## Tech Stack & Libraries
+
+| Library | Purpose |
+|---|---|
+| `streamlit` |	Web UI framework |
+| `torch` / `torchvision`	| Deep learning — ResNet18 training & inference |
+| `transformers`  (HuggingFace)	| CLIP model for maize verification |
+| `sentence-transformers`	| Semantic similarity for Q&A retrieval |
+| `deep-translator`	| Hindi → English translation for search |
+| `gTTS`	| Text-to-speech output |
+| `SpeechRecognition`	| Voice input recognition |
+| `Pillow` |	Image loading and preprocessing |
+| `pandas`	| Dataset handling |
+| `scikit-learn`	| Cosine similarity for semantic search |
+
+## Classification Labels
+> Disease model (4 classes):
+
+| Label | Display Name |
+|---|---|
+| `blight` |	Blight |
+| `grey_leaf_spot` |	Grey Leaf Spot |
+| `healthy`	| Healthy |
+| `rust` |	Rust |
+---
+
+> Pest model (4 classes):
+
+| Label | Display Name |
+|---|---|
+| `aphids` |	Aphids |
+| `corn_rootworm` |	Corn Rootworm |
+| `fall_army_worm` |	Fall Army Worm |
+| `stalk_borer`	| Stalk Borer |
+---
+
+## Training
+> All training scripts are in the `training/` folder. Update the dataset paths before running.
+
+## Train Disease Model
+```bash
+python training/train_disease.py
+```
+> Trains a ResNet18 model on 4 disease classes. Saves to `models/maize_disease_model.pth`.
+
+## Train Pest Model
+```bash
+python training/train_pest.py
+```
+> Trains a ResNet18 model on 4 pest classes. Saves to `models/maize_pest_model.pth`.
+
+### Train Maize Verification Model (Optional)
+```bash
+python training/train_maize_check.py
+```
+Trains a binary classifier (maize vs. non-maize). This is a fallback; the default `predict.py` uses CLIP for zero-shot maize verification.
+
+## Training configuration:
+| Parameter | Value |
+|---|---|
+| Architecture	| ResNet18 (pretrained on ImageNet) |
+| Optimizer |	Adam (lr = 0.0001) |
+| Loss |	CrossEntropyLoss |
+| Epochs |	5 |
+| Batch size | 16 |
+| Input size | 	224 × 224 |
+---
+
+## How It Works
+
+1. Image upload — user uploads a maize leaf photo
+2. Maize check — CLIP scores the image against maize and non-maize text descriptors; non-maize images are rejected
+3. Classification — both the disease and pest ResNet18 models run inference; the higher-confidence prediction wins
+4. Auto-query — the detected label triggers an automatic advisory search (e.g. "How to control Rust in maize?")
+5. Semantic search — the query (translated to English if Hindi) is encoded and matched against the dataset using cosine similarity
+6. Answer display — the best-matching answer is shown in the selected language, with optional text-to-speech playback
+---
+
+##  Team Members
+
+| Name | Role |
+|---|---|
+| D. Sushma | Developed image processing pipeline including maize detection (CLIP) and disease/pest prediction models. Integrated audio input, bilingual support, and handled overall system integration, testing, and final presentation.
+| V. Jhaana Sreya | Developed chatbot interface using Streamlit, including language selection, Also implemented text-based query system using MiniLM and cosine similarity and contributed to report writing. |
+| D. Sweta | Curated and prepared the synthetic dataset for chatbot responses, common questions, and user interaction (text input). Also handled PowerPoint presentation and part of the project report. |
+---
 
 
-## Acknowledgements
-- OpenAI (CLIP)
-- Hugging Face
-- SentenceTransformers
-- PyTorch
-- Streamlit
+## Notes
+> The CLIP model (`openai/clip-vit-base-patch32`) is downloaded automatically from HuggingFace on first run (~600 MB).
+> `train_disease_model.py` and `train_disease.py` are two versions of the disease training script. `train_disease.py` is the final version with augmentation and accuracy logging.
+> Model `.pth` files are not included in this repository due to size. Train them locally or request access from the team.
+---
+
+## License
+This project was developed as an academic submission. Image datasets are sourced from publicly available agricultural image repositories.
+
